@@ -22,16 +22,18 @@ class SolarPredictionModel:
                                   '하늘상태', '일최고기온', '습도', '풍향', '풍속']
         self.important_features = ['time']
         self.input_features = self.features_to_scale + self.important_features
-        self.target_variables = ['수평면', '외기온도', '경사면', '모듈온도']
+        self.target_variables = ['log_수평면', '외기온도', 'log_경사면', '모듈온도']
 
     def load_data(self, data_path=None):
         if data_path is not None:
             self.data_path = data_path
-            
+
         self.data = pd.read_csv(self.data_path)
-        self.data['풍향'] = np.sin(np.deg2rad(self.data['풍향']))
 
         # 전처리
+        self.data['풍향'] = np.sin(np.deg2rad(self.data['풍향']))
+        self.data['log_경사면'] = np.log(self.data['경사면'] + 1)
+        self.data['log_수평면'] = np.log(self.data['수평면'] + 1)
         self.scaler = MinMaxScaler()
         self.data[self.features_to_scale] = self.scaler.fit_transform(
             self.data[self.features_to_scale])
@@ -50,7 +52,7 @@ class SolarPredictionModel:
             X, y, test_size=test_size, random_state=random_state)
         self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(
             X_train_temp, y_train_temp, test_size=0.5, random_state=random_state)
-
+        
     def get_data_shape(self):
         return self.data.shape
 
@@ -60,7 +62,7 @@ class SolarPredictionModelExtended(SolarPredictionModel):
     1. 모델 초기화
     model = SolarPredictionModelExtended("path_to_your_data.csv")
     2. 데이터 로딩 및 전처리
-    model.load_data("path_to_your_data.csv")
+    model.load_data()
     3. 하이퍼파라미터 튜닝
     model.hyperparameter_tuning()
     4. 모델 학습
@@ -70,6 +72,7 @@ class SolarPredictionModelExtended(SolarPredictionModel):
     6. 테스트 에러 가져오기
     model.get_trained_errors()
     '''
+
     def __init__(self, data_path):
         super().__init__(data_path)
         self.best_params = {}
@@ -117,12 +120,66 @@ class SolarPredictionModelExtended(SolarPredictionModel):
         # input_data.shape = (X, 8)
         # return example: {'수평면': array([00.00]), '외기온도': array([00.00]), '경사면': array([00.00]), '모듈온도': array([00.00])}
         for target in self.target_variables:
+            if '수평면' in target or '경사면' in target:
+                self.predictions[target] = np.exp(self.models[target].predict(input_data)) - 1
+            else:
+                self.predictions[target] = self.models[target].predict(input_data)
+                
             self.predictions[target] = self.models[target].predict(input_data)
         return self.predictions
-
+    
     def get_trained_errors(self):
         for target in self.target_variables:
-            self.predictions[target] = self.models[target].predict(self.X_test)
+            if '수평면' in target or '경사면' in target:
+                self.predictions[target] = np.exp(self.models[target].predict(self.X_test)) - 1
+            else:
+                self.predictions[target] = self.models[target].predict(self.X_test)
             self.test_errors[target] = mean_squared_error(
                 self.y_test[target], self.predictions[target])
         return self.test_errors
+
+data_path = "./merged_result.csv"
+model_instance = SolarPredictionModelExtended(data_path)
+model_instance.load_data()
+model_instance.hyperparameter_tuning()
+model_instance.train_model()
+print(model_instance.get_trained_errors())
+
+# comparison_dfs = {}
+# for target in model_instance.target_variables:
+#     if '수평면' in target or '경사면' in target:
+#         comparison_dfs[target] = pd.DataFrame({
+#             f"Actual {target}": np.exp(model_instance.y_test[target]) - 1,
+#             f"Predicted {target}": model_instance.predictions[target]
+#         })
+#     else:
+#         comparison_dfs[target] = pd.DataFrame({
+#             f"Actual {target}": model_instance.y_test[target],
+#             f"Predicted {target}": model_instance.predictions[target]
+#         })
+
+# print(comparison_dfs['외기온도'].head())
+# print(comparison_dfs['log_수평면'].head())
+# print(comparison_dfs['모듈온도'].head())
+# print(comparison_dfs['log_경사면'].head())
+
+
+# ------------------------------
+# data_path = "./merged_result.csv"
+# model_instance = SolarPredictionModelExtended(data_path)
+# model_instance.load_data()
+# model_instance.hyperparameter_tuning()
+# model_instance.train_model()
+# print(model_instance.get_trained_errors())
+
+# comparison_dfs = {}
+# for target in model_instance.target_variables:
+#     comparison_dfs[target] = pd.DataFrame({
+#         f"Actual {target}": model_instance.y_test[target],
+#         f"Predicted {target}": model_instance.predictions[target]
+#     })
+
+# print(comparison_dfs['외기온도'].head())
+# print(comparison_dfs['수평면'].head())
+# print(comparison_dfs['모듈온도'].head())
+# print(comparison_dfs['경사면'].head())
