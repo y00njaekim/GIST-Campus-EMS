@@ -147,39 +147,37 @@ $$
 1. Load와 Discharge 간의 관계:
 
 $$
-L_{\text {sum }}[i][t]-P_{\text {discharge }}[t, i]=P_{\text {grid }}[t] \quad \forall t, \forall i
+L_{\text{sum}}[i][t] - P_{\text{discharge}}[t, i] = P_{\text{grid}}[t] \quad \forall t, \forall i
 $$
 
 2. PV 발전량에 따른 Charge 제한:
 
 $$
-P_{\text {charge }}[t, i] \leq \mathrm{PV}_{\text {sum }}[i][t] \quad \forall t, \forall i
+P_{\text{charge}}[t, i] \leq \mathrm{PV}_{\text{sum}}[i][t] \quad \forall t, \forall i
 $$
 
-3. 배터리 SOC 계산과 제약 \((t=0)\) 일 때:
-
-$$
-\begin{gathered}
-\text { SOC }[0]=\text { SOC\_initial }+\left(P_{\text {charge }}[0, i]-P_{\text {discharge }}[0, i]\right) \times \text { efficiency } \quad \forall i \\
-\text { SOC }[0] \geq \text { SOC\_min } \quad \forall i \\
-\text { SOC }[0] \leq \text { SOC\_max } \quad \forall i
-\end{gathered}
-$$
-
-4. 배터리 SOC 계산과 제약 \((t>0)\) 일 때:
+3. 배터리 SOC 계산과 제약 (t=0) 일 때:
 
 $$
 \begin{aligned}
-\mathrm{SOC}[t]=\mathrm{SOC}[t-1]+ & \left(P_{\text {charge }}[t, i]-P_{\text {discharge }}[t, i]\right) \times \text { efficiency } \quad \forall t>0, \forall i \\
-& \mathrm{SOC}[t] \geq \text { SOC\_min } \quad \forall t, \forall i \\
-& \text { SOC }[t] \leq \text { SOC\_max } \quad \forall t, \forall i
+\text{SOC}[0] &= \text{SOC\_initial} + (P_{\text{charge}}[0, i] - P_{\text{discharge}}[0, i]) \times \text{efficiency} \quad \forall i \\
+\text{SOC}[0] &\geq \text{SOC\_min} \quad \forall i \\
+\text{SOC}[0] &\leq \text{SOC\_max} \quad \forall i
+\end{aligned}
+$$
+
+4. 배터리 SOC 계산과 제약 (t>0) 일 때:
+
+$$
+\begin{aligned}
+\text{SOC}[t] &= \text{SOC}[t-1] + (P_{\text{charge}}[t, i] - P_{\text{discharge}}[t, i]) \times \text{efficiency} \quad \forall t>0, \forall i \\
+\text{SOC}[t] &\geq \text{SOC\_min} \quad \forall t, \forall i \\
+\text{SOC}[t] &\leq \text{SOC\_max} \quad \forall t, \forall i
 \end{aligned}
 $$
 
 5. 초기 및 최종 SOC 설정:
 
 $$
-\text{SOC}[0] = \text{SOC\_initial}
-\newline
-   \text{SOC}[T-1] = \text{SOC\_initial}
+\text{SOC}[0] = \text{SOC\_initial}, \quad \text{SOC}[T-1] = \text{SOC\_initial}
 $$
