@@ -1,4 +1,3 @@
-#pip install pulp
 import pulp
 from pulp import LpProblem, LpVariable, LpMaximize
 
@@ -91,5 +90,5 @@ class schedule :
         prob += SOC[0] == self.SOC_initial
         prob += SOC[23] == self.SOC_initial
         
-        prob.solve()
+        prob.solve(pulp.PULP_CBC_CMD(msg=False))  # 로그 메시지 출력 안함
         return self.price_sum(P_grid)  

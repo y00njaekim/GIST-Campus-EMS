@@ -94,7 +94,7 @@ class FeatureSolarPredictionModel:
         scalered_input_data = self.scaler.fit_transform(nd_input_data)
         poly_input_data = self.poly.transform(scalered_input_data)
         for target in self.target_variables:
-            self.predictions[target] = self.models[target].predict(poly_input_data)
+            self.predictions[target] = [round(x, 1) for x in self.models[target].predict(poly_input_data)]
         return self.predictions
 
     def get_trained_errors(self):
@@ -109,5 +109,7 @@ class FeatureSolarPredictionModel:
 # model_instance.load_data()
 # model_instance.feature_selection()
 # model_instance.train_model()
+# temp = model_instance.predict(model_instance.X_test)
+# print(temp)
 # err = model_instance.get_trained_errors()
 # print(err)
