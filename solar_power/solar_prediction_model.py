@@ -39,9 +39,9 @@ class FeatureSolarPredictionModel:
         self.test_poly = None
         self.summed_z_train = None
         self.summed_z_test = None
-        self.model = None
-        self.predictions = None
-        self.test_errors = None
+        self.models = {}
+        self.predictions = pd.DataFrame()
+        self.test_errors = {}
 
     def load_data(self, data_path=None):
         if data_path is not None:
@@ -66,10 +66,10 @@ class FeatureSolarPredictionModel:
         self.y_train, self.y_test = y.iloc[train_idx], y.iloc[test_idx]
 
         # 모든 발전소별 발전량 하나의 시간대 안에서 통합
-        np_z_train = self.y_train.to_numpy()
-        np_z_test = self.y_test.to_numpy()
-        self.summed_z_train = np_z_train.sum(axis=1)
-        self.summed_z_test = np_z_test.sum(axis=1)
+        # np_z_train = self.y_train.to_numpy()
+        # np_z_test = self.y_test.to_numpy()
+        # self.summed_z_train = np_z_train.sum(axis=1)
+        # self.summed_z_test = np_z_test.sum(axis=1)
 
     def feature_selection(self):
         # linearregression에 맞는 적절한 조합의 feature 형태들 선별
@@ -79,9 +79,10 @@ class FeatureSolarPredictionModel:
         self.test_poly = self.poly.transform(self.X_test)
 
     def train_model(self):
-        lr = LinearRegression()
-        lr.fit(self.train_poly, self.summed_z_train)
-        self.model = lr
+        for target in self.target_variables:
+            lr = LinearRegression()
+            lr.fit(self.train_poly, self.y_train[target])
+            self.models[target] = lr
 
     def predict(self, input_data):
         # input_data type = pandas.core.frame.DataFrame
@@ -92,13 +93,15 @@ class FeatureSolarPredictionModel:
             nd_input_data[i][condition] = 0
         scalered_input_data = self.scaler.fit_transform(nd_input_data)
         poly_input_data = self.poly.transform(scalered_input_data)
-        predictions = self.model.predict(poly_input_data)
-        return predictions
+        for target in self.target_variables:
+            self.predictions[target] = self.models[target].predict(poly_input_data)
+        return self.predictions
 
     def get_trained_errors(self):
-        self.predictions = self.model.predict(self.test_poly)
-        self.test_errors = mean_squared_error(
-            self.summed_z_test, self.predictions)
+        for target in self.target_variables:
+            self.predictions[target] = self.models[target].predict(self.test_poly)
+            self.test_errors[target] = mean_squared_error(
+                self.y_test[target], self.predictions[target])
         return self.test_errors
 
 
