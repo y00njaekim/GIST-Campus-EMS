@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit, train_test_split
 
 class BuildingEnergyModel:
     def __init__(self, data_path, random_state=42, test_size=0.2):
@@ -19,7 +19,12 @@ class BuildingEnergyModel:
                                     'weekday_Sunday', 'weekday_Thursday', 'weekday_Tuesday', 'weekday_Wednesday']]
         self.y = self.data_encoded.loc[:, '중앙P/P_석사':'산학협력연구동(E)_학사']
         
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=self.test_size, random_state=self.random_state)
+        gss = GroupShuffleSplit(n_splits=1, test_size=self.test_size, random_state=self.random_state)
+        train_idx, test_idx = next(gss.split(self.X, self.y, groups=self.data['day']))
+
+        self.X_train, self.X_test = self.X.iloc[train_idx], self.X.iloc[test_idx]
+        self.y_train, self.y_test = self.y.iloc[train_idx], self.y.iloc[test_idx]
+
         
         
     def train_model(self, n_estimators=100):

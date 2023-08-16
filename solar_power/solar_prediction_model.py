@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit, train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
@@ -57,8 +57,13 @@ class FeatureSolarPredictionModel:
         # 데이터 분할
         X = self.data[self.input_features]
         y = self.data[self.target_variables]
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            X, y, test_size=self.test_size, random_state=self.random_state)
+        
+        # GroupShuffleSplit을 사용하여 데이터 분할
+        gss = GroupShuffleSplit(n_splits=1, test_size=self.test_size, random_state=self.random_state)
+        train_idx, test_idx = next(gss.split(X, y, groups=self.data['day']))
+        
+        self.X_train, self.X_test = X.iloc[train_idx], X.iloc[test_idx]
+        self.y_train, self.y_test = y.iloc[train_idx], y.iloc[test_idx]
 
         # 모든 발전소별 발전량 하나의 시간대 안에서 통합
         np_z_train = self.y_train.to_numpy()
@@ -97,7 +102,7 @@ class FeatureSolarPredictionModel:
         return self.test_errors
 
 
-# model_instance = FeatureSolarPredictionModel("./merged_result.csv")
+# model_instance = FeatureSolarPredictionModel("./solar_power/merged_result.csv")
 # model_instance.load_data()
 # model_instance.feature_selection()
 # model_instance.train_model()

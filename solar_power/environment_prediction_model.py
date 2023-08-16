@@ -3,6 +3,7 @@ import numpy as np
 import os
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split, GridSearchCV
 
@@ -48,10 +49,17 @@ class SolarPredictionModel:
         # 데이터 분할
         X = self.data[self.input_features]
         y = self.data[self.target_variables]
-        X_train_temp, self.X_test, y_train_temp, self.y_test = train_test_split(
-            X, y, test_size=self.test_size, random_state=self.random_state)
-        self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(
-            X_train_temp, y_train_temp, test_size=0.5, random_state=self.random_state)
+        # GroupShuffleSplit을 사용하여 데이터 분할
+        gss = GroupShuffleSplit(n_splits=1, test_size=self.test_size, random_state=self.random_state)
+        train_val_idx, test_idx = next(gss.split(X, y, groups=self.data['day']))
+        
+        X_train_temp, self.X_test = X.iloc[train_val_idx], X.iloc[test_idx]
+        y_train_temp, self.y_test = y.iloc[train_val_idx], y.iloc[test_idx]
+        
+        train_idx, val_idx = next(gss.split(X_train_temp, y_train_temp, groups=self.data['day'].iloc[train_val_idx]))
+        
+        self.X_train, self.X_val = X_train_temp.iloc[train_idx], X_train_temp.iloc[val_idx]
+        self.y_train, self.y_val = y_train_temp.iloc[train_idx], y_train_temp.iloc[val_idx]
         
     def get_data_shape(self):
         return self.data.shape
@@ -139,8 +147,16 @@ class SolarPredictionModelExtended(SolarPredictionModel):
                 self.predictions['경사면'] = np.exp(self.models[target].predict(self.X_test)) - 1
             else:
                 self.predictions[target] = self.models[target].predict(self.X_test)
-            self.test_errors[target] = mean_squared_error(
-                self.y_test[target], self.predictions[target])
+                
+            if '수평면' in target:
+                self.test_errors['수평면'] = mean_squared_error(
+                self.y_test[target], self.predictions['수평면'])
+            elif '경사면' in target:
+                self.test_errors['경사면'] = mean_squared_error(
+                self.y_test[target], self.predictions['경사면'])
+            else:
+                self.test_errors[target] = mean_squared_error(
+                    self.y_test[target], self.predictions[target])
         return self.test_errors
 
 # data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'merged_result.csv')
@@ -152,10 +168,15 @@ class SolarPredictionModelExtended(SolarPredictionModel):
 
 # comparison_dfs = {}
 # for target in model_instance.target_variables:
-#     if '수평면' in target or '경사면' in target:
-#         comparison_dfs[target] = pd.DataFrame({
-#             f"Actual {target}": np.exp(model_instance.y_test[target]) - 1,
-#             f"Predicted {target}": model_instance.predictions[target]
+#     if '수평면' in target:
+#         comparison_dfs['수평면'] = pd.DataFrame({
+#             f"Actual 수평면": np.exp(model_instance.y_test[target]) - 1,
+#             f"Predicted 수평면": model_instance.predictions['수평면']
+#         })
+#     elif '경사면' in target:
+#         comparison_dfs['경사면'] = pd.DataFrame({
+#             f"Actual 경사면": np.exp(model_instance.y_test[target]) - 1,
+#             f"Predicted 경사면": model_instance.predictions['경사면']
 #         })
 #     else:
 #         comparison_dfs[target] = pd.DataFrame({
@@ -164,9 +185,9 @@ class SolarPredictionModelExtended(SolarPredictionModel):
 #         })
 
 # print(comparison_dfs['외기온도'].head())
-# print(comparison_dfs['log_수평면'].head())
+# print(comparison_dfs['수평면'].head())
 # print(comparison_dfs['모듈온도'].head())
-# print(comparison_dfs['log_경사면'].head())
+# print(comparison_dfs['경사면'].head())
 
 
 # ------------------------------
