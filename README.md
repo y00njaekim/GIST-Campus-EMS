@@ -1,4 +1,8 @@
-# 📙 목차
+# 🔥 최종 결과 파일 위치
+
+- 최종 결과는 ➡️ [여기 링크](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/gist_campus_ems.ipynb)에서 확인할 수 있습니다
+
+
 
 # 📙 실행 환경 설정
 
@@ -138,46 +142,26 @@ poetry env info -p
 
 ### 목적 함수
 
-$$
-\operatorname{minimize} \sum_{t=0}^{T-1} P_{\text {grid }}[t] \times \text{electricity\_prices}[t]
-$$
+<img src="https://latex.codecogs.com/svg.image?\text{minimize}\sum_{t=0}^{T-1}P_{\text{grid}}[t]\times\text{electricity\_prices}[t]"/>
 
 ## 제약조건
 
 1. Load와 Discharge 간의 관계:
 
-$$
-L_{\text{sum}}[i][t] - P_{\text{discharge}}[t, i] = P_{\text{grid}}[t] \quad \forall t, \forall i
-$$
+<img src="https://latex.codecogs.com/svg.image?L_{\text{sum}}[i][t]-P_{\text{discharge}}[t,i]=P_{\text{grid}}[t]\quad\forall&space;t,\forall&space;i">
 
 2. PV 발전량에 따른 Charge 제한:
 
-$$
-P_{\text{charge}}[t, i] \leq \mathrm{PV}_{\text{sum}}[i][t] \quad \forall t, \forall i
-$$
+<img src="https://latex.codecogs.com/svg.image?&space;P_{\text{charge}}[t,i]\leq\mathrm{PV}_{\text{sum}}[i][t]\quad\forall&space;t,\forall&space;i&space;">
 
 3. 배터리 SOC 계산과 제약 (t=0) 일 때:
 
-$$
-\begin{aligned}
-\text{SOC}[0] &= \text{SOC\_initial} + (P_{\text{charge}}[0, i] - P_{\text{discharge}}[0, i]) \times \text{efficiency} \quad \forall i \\
-\text{SOC}[0] &\geq \text{SOC\_min} \quad \forall i \\
-\text{SOC}[0] &\leq \text{SOC\_max} \quad \forall i
-\end{aligned}
-$$
+<img src="https://latex.codecogs.com/svg.image?\begin{gathered}\text{SOC}[0]=\text{SOC\_initial}&plus;\left(P_{\text{charge}}[0,i]-P_{\text{discharge}}[0,i]\right)\times\text{efficiency}\quad\forall&space;i\\\text{SOC}[0]\geq\text{SOC\_min}\quad\forall&space;i\\\text{SOC}[0]\leq\text{SOC\_max}\quad\forall&space;i\end{gathered}">
 
 4. 배터리 SOC 계산과 제약 (t>0) 일 때:
 
-$$
-\begin{aligned}
-\text{SOC}[t] &= \text{SOC}[t-1] + (P_{\text{charge}}[t, i] - P_{\text{discharge}}[t, i]) \times \text{efficiency} \quad \forall t>0, \forall i \\
-\text{SOC}[t] &\geq \text{SOC\_min} \quad \forall t, \forall i \\
-\text{SOC}[t] &\leq \text{SOC\_max} \quad \forall t, \forall i
-\end{aligned}
-$$
+<img src="https://latex.codecogs.com/svg.image?\begin{aligned}\mathrm{SOC}[t]=\mathrm{SOC}[t-1]&plus;&\left(P_{\text{charge}}[t,i]-P_{\text{discharge}}[t,i]\right)\times\text{efficiency}\quad\forall&space;t>0,\forall&space;i\\&\mathrm{SOC}[t]\geq\text{SOC\_min}\quad\forall&space;t,\forall&space;i\\&\text{SOC}[t]\leq\text{SOC\_max}\quad\forall&space;t,\forall&space;i\end{aligned}">
 
 5. 초기 및 최종 SOC 설정:
 
-$$
-\text{SOC}[0] = \text{SOC\_initial}, \quad \text{SOC}[T-1] = \text{SOC\_initial}
-$$
+<img src="https://latex.codecogs.com/svg.image?\text{SOC}[0]=\text{SOC\_initial}\newline\text{SOC}[T-1]=\text{SOC\_initial}">
