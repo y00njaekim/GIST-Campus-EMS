@@ -21,11 +21,11 @@ poetry env info -p
 
 # 📙 태양광 발전량 예측 모델
 
-> 오늘의 우리가 내일의 태양광 ☀️ 발전량을 예측하려 할 때 어떤 데이터를 사용할 수 있을까❓
+> 오늘의 우리가 내일의 태양광 발전량을 예측하려 할 때 어떤 데이터를 사용할 수 있을까?
 >
 > 우리가 사용할 수 있는 데이터는 결국, **1. 기상 데이터** **2. 과거의 특정 기상 상황 속 태양광 발전량 History 데이터** 이다.
 >
-> 우리는 기상청의  **기상정보☔️ 예측데이터**를 수집한 후 해당 기상상황에서 태양광 발전기 위치의 **환경감시 데이터 **(수평면의 태양복사에너지, 패널의 태양복사에너지, 주변 온도, 패널 온도)를 예측한다. 이후 **예측 환경감시 데이터**를 통해 해당 패널에서 발전될 **태양광 에너지**을 예측한다.
+> 우리는 기상청의  **기상정보 예측데이터**를 수집한 후 해당 기상상황에서 태양광 발전기 위치의 **환경감시 데이터 **(수평면의 태양복사에너지, 패널의 태양복사에너지, 주변 온도, 패널 온도)를 예측한다. 이후 **예측 환경감시 데이터**를 통해 해당 패널에서 발전될 **태양광 에너지**을 예측한다.
 
 ## 📌 데이터셋 수집
 
@@ -37,14 +37,14 @@ poetry env info -p
   
 - csv 파일은 day, hour, forecast, value 로 구성되어 있다. hour(UTC) 은 예측을 수행한 시간이며 hour + forecast 는 예측의 대상 시간이다. 즉, hour 200, forecast 6 일 때, 2시 + 6시 + 9시(UTC->KST) = 17시에 대한 기상 정보를 예측하는 것이다.
   
-- 우리는 예측 대상 날짜 **1일 전 8시(UST) 에 예측한 forecast 7 ~ 30 데이터**를 이용하여 해당 날짜의 1시간 단위 기상 값의 데이터셋을 구축한다. `./filtered` [전처리 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/preprocess.ipynb)
+- 우리는 예측 대상 날짜 **1일 전 8시(UST) 에 예측한 forecast 7 ~ 30 데이터**를 이용하여 해당 날짜의 1시간 단위 기상 값의 데이터셋을 구축한다. `./solar-power/filtered` [전처리 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/preprocess.ipynb)
   
 - 모든 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merge1.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merged_dataset.csv)
   
 
 ### 2. 발전량 데이터
 
-- 학교에서 제공한 발전량 데이터를 다운로드 한다. `./solar-power-report`
+- 학교에서 제공한 발전량 데이터를 다운로드 한다. `./solar-power/solar-power-report`
   
 - 발전량 데이터와 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merge2.ipynb) / [병합데이터셋]()
   
@@ -82,3 +82,26 @@ poetry env info -p
 - 테스트 데이터를 사용하여 각 목표 변수에 대한 예측 성능을 개별적으로 확인. 이를 통해 어떤 변수에 대한 예측이 더 잘되고, 어떤 변수에 대한 예측이 상대적으로 부족한지를 파악 가능.
 
 ## 📌 환경감시 to 태양광 발전량 모델 구현
+
+
+
+# 📙 전기 부하량 예측 모델
+
+> 전기 부하량은 **기상 조건**의 영향을 받으며 **요일과 시간**의 **시계열 반복성**이 나타난다. 이 예측 모델은 주어진 데이터를 기반으로 전기 부하량을 예측하는 모델을 구현한다.
+
+## 📌 데이터셋 수집
+
+###  부하량 데이터 전처리
+
+- 학교에서 제공한 부하량 데이터를 다운로드 한다. `./electrical-load/data-under`, `./electrical-load/data-master` (각각 학사 일보, 석사 일보 데이터)
+- 부하량 데이터 중 전기요금의 근원인 **`유효전력`**  데이터를 추출 및 병합한다.
+  이전에 추출한 **`기상데이터`** 와 병합하여 입력 특징과 목표 변수에 대한 파일을 생성한다.  [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical-load/preprocess.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical-load/merged_data.csv)
+
+## 📌 전기 부하량 예측 모델 구현
+
+- **`요일`** 을 나타내는 특징에 대해 원 핫 인코딩 처리
+- `RandomForestRegressor` 를 사용하여 모델을 구축
+- 평가 지표로는 Mean Squared Error (MSE)를 사용
+
+
+
