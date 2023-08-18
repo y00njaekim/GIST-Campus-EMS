@@ -91,4 +91,17 @@ class schedule :
         prob += SOC[23] == self.SOC_initial
         
         prob.solve(pulp.PULP_CBC_CMD(msg=False))  # 로그 메시지 출력 안함
-        return self.price_sum(P_grid)  
+
+        for t in range(self.hours):
+            print(f"Hour {t}:")
+            for i in range(self.PV_count):
+                print(f"P_charge[{i}] =", pulp.value(P_charge[(t, i)]))
+                print(f"P_discharge[{i}] =", pulp.value(P_discharge[(t, i)]))
+            print("SOC =", pulp.value(SOC[t]))
+            print("------")
+        print("확인")
+
+        data = [pulp.value(SOC[k]) for k in range(self.hours)]
+
+
+        return self.price_sum(P_grid) ,data
