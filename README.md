@@ -36,13 +36,13 @@ poetry env info -p
 - [기상자료개방포털](https://data.kma.go.kr/cmmn/main.do)에서 예/특보 > 단기예보 데이터셋을 다운로드 한다.
 - 단기예보는 3시간 주기로 (현재시각 + 6시) ~ (현재시각 + 60시) 가량의 기상 정보를 예측한 데이터셋이다.
 - csv 파일은 day, hour, forecast, value 로 구성되어 있다. hour(UTC) 은 예측을 수행한 시간이며 hour + forecast 는 예측의 대상 시간이다. 즉, hour 200, forecast 6 일 때, 2시 + 6시 + 9시(UTC->KST) = 17시에 대한 기상 정보를 예측하는 것이다.
-- 우리는 예측 대상 날짜 **1일 전 8시(UST) 에 예측한 forecast 7 ~ 30 데이터**를 이용하여 해당 날짜의 1시간 단위 기상 값의 데이터셋을 구축한다. `./solar-power/filtered` [전처리 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/preprocess.ipynb)
-- 모든 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merge1.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merged_dataset.csv)
+- 우리는 예측 대상 날짜 **1일 전 8시(UST) 에 예측한 forecast 7 ~ 30 데이터**를 이용하여 해당 날짜의 1시간 단위 기상 값의 데이터셋을 구축한다. `./solar-power/filtered` [전처리 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar_power/preprocess.ipynb)
+- 모든 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar_power/merge1.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar_power/merged_dataset.csv)
 
 ### 2. 발전량 데이터
 
 - 학교에서 제공한 발전량 데이터를 다운로드 한다. `./solar-power/solar-power-report`
-- 발전량 데이터와 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar-power/merge2.ipynb) / [병합데이터셋]()
+- 발전량 데이터와 기상 데이터를 특정 날짜와 특정 시각 (24시간 단위) 에 맞추어 하나의 csv 파일에 병합한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar_power/merge2.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/solar_power/merged_result.csv)
 
 ## 📌 기상데이터 to 환경감시 모델 구현
 
@@ -101,7 +101,7 @@ poetry env info -p
 
 - 학교에서 제공한 부하량 데이터를 다운로드 한다. `./electrical-load/data-under`, `./electrical-load/data-master` (각각 학사 일보, 석사 일보 데이터)
 - 부하량 데이터 중 전기요금의 근원인 **`유효전력`** 데이터를 추출 및 병합한다.
-  이전에 추출한 **`기상데이터`** 와 병합하여 입력 특징과 목표 변수에 대한 파일을 생성한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical-load/preprocess.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical-load/merged_data.csv)
+  이전에 추출한 **`기상데이터`** 와 병합하여 입력 특징과 목표 변수에 대한 파일을 생성한다. [병합 코드](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical_load/preprocess.ipynb) / [병합데이터셋](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/electrical_load/merged_data.csv)
 
 ## 📌 전기 부하량 예측 모델 구현
 
