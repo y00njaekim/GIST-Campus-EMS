@@ -1,3 +1,6 @@
+- 2023 창의 융합 경진대회 대상 [보도자료](https://www.hellodd.com/news/articleView.html?idxno=101550)
+- 전기G킴이 팀원: [김윤재](https://github.com/y00njaekim), [윤혜진](https://github.com/ktrnyoon), [조용환](https://github.com/joun008), [최승훈](https://github.com/ddeunghoon)
+
 # 🔥 최종 결과 파일 위치
 
 - 최종 결과는 ➡️ [여기 링크](https://github.com/y00njaekim/GIST-Campus-EMS/blob/main/gist_campus_ems.ipynb)에서 확인할 수 있습니다
